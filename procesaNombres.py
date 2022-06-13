@@ -62,47 +62,6 @@ class Rege:
 objRege = Rege()
 objRege.insertarRege(a, b, c)
 
-"""file_name1 = 'C:/Users/efige/Documents/Portafolio 2021/I SEM/TÓPICOS ESPECIALES II/Tareas/Tarea2/archivos_tarea2/01/names2018.txt'
-with open(file_name1) as file_object1:
-    #lines = file_object1.readlines()
-#for line in lines:
-#    print (line.rstrip())
-    for line in file_object1:
-        print(line.rstrip())"""
-
-"""file_name2 = 'C:/Users/efige/Documents/Portafolio 2021/I SEM/TÓPICOS ESPECIALES II/Tareas/Tarea2/archivos_tarea2/01/names2018.txt'
-with open(file_name2) as file_object2:
-    contents = file_object2.read()
-    print(contents.rstrip())"""
-
-
-class Rege:
-    def __init__(self):
-        self.connection = psycopg2.connect(host="localhost", dbname="babynames", user="postgres",
-                                           password="eliecer")
-        self.micursor = self.connection.cursor()
-
-    def insertarRege(self, id, rango, nombre, sexo, num_naci):
-        query = "INSERT INTO nombebe VALUES(%s,%s,%s,%s,%s)"
-        val = (id, rango, nombre, sexo, num_naci)
-        try:
-            self.micursor.execute(query, val)
-            self.connection.commit()
-            print("Se insertó correctamente")
-        except ValueError as vx:
-            print(vx)
-        except Exception as ex:
-            print(ex)
-            print("Error al insertar registro")
-        finally:
-            if self.connection:
-                self.connection.close()
-                self.micursor.close()
-                print("Se cerró la conexión")
-
-
-objRege = Rege()
-objRege.insertarRege(1, 1, "Liam", "M", 19837)
 
 """-------------------------------------------------------------------------------------"""
 #def main():
