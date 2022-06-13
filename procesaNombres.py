@@ -14,7 +14,7 @@ c = df['Female_name']
 class Rege:
     def __init__(self):
         self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="postgres",
-                                           password="erod1097")
+                                           password="eliecer")
         self.micursor = self.connection.cursor()
 
     def insertarRege(self, rango, nombremasc, nombrefem):
@@ -79,7 +79,7 @@ with open(file_name2) as file_object2:
 class Rege:
     def __init__(self):
         self.connection = psycopg2.connect(host="localhost", dbname="babynames", user="postgres",
-                                           password="erod1097")
+                                           password="eliecer")
         self.micursor = self.connection.cursor()
 
     def insertarRege(self, id, rango, nombre, sexo, num_naci):
