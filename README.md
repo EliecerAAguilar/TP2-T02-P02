@@ -3,8 +3,8 @@
 ### Problema # 2
 
 1. La	agencia	de	Seguro	Social	(SSA)	del	gobierno	de	los	EEUU	publica	cada	año	una	lista	de	los	nombres	masculinos	y	femeninos	más	
-comunes	 de	 recién	 nacidos (<a href="https://www.ssa.gov/cgi-bin/popularnames.cgi" target="_blank">https://www.ssa.gov/cgi-bin/popularnames.cgi</a>).
-Adjunto	 a	 este	 documento	 encontrará	 el	 archivo	babynames_births2021.txt,	que	contiene	la	lista	para	de	nombres	mas	populares	año	2021 y	
+comunes	 de	 recién	 nacidos (<a href="https://www.ssa.gov/cgi-bin/popularnames.cgi" target="_blank"> https://www.ssa.gov/cgi-bin/popularnames.cgi </a> ).
+Adjunto	 a	 este	 documento	 encontrará	 el	 archivo	babynames_births2021.csv,	que	contiene	la	lista	para	de	nombres	mas	populares	año	2021 y	
 el	numero	total	de	nacimientos	para	niños	y	niñas	con	cada	uno	de	estos	nombres.
 
 

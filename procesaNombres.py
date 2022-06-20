@@ -1,28 +1,21 @@
 import pandas as pd
-import os
-import numpy as np
 import psycopg2
 
-data = pd.read_csv(r'resources/babynames_births2021.csv', sep='\t')
-df = pd.DataFrame(data)
-# print(df)
-a = df['Rank']
-b = df['Male_name']
-c = df['Female_name']
 
+class Registro:
 
-class Rege:
     def __init__(self):
-        self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="postgres",
+        self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="eliecer", port=5433,
                                            password="eliecer")
         self.micursor = self.connection.cursor()
 
     def insertarRege(self, rango, nombremasc, nombrefem):
+
         for x in range(len(a)):
             query = ("INSERT INTO db_babynames values(%s,%s,%s)")
             val = (str(rango[x]), str(nombremasc[x]), str(nombrefem[x]))
             self.micursor.execute(query, val)
-        print("OHIO!")
+
         try:
             # self.connection.commit()
             print("Se insertó correctamente")
@@ -59,14 +52,20 @@ class Rege:
                 print("Se cerró la conexión")
 
 
-objRege = Rege()
-objRege.insertarRege(a, b, c)
-
-
 """-------------------------------------------------------------------------------------"""
-#def main():
 
 
-# if __name__ == '__main__':
-#     main()
+def main():
+    data = pd.read_csv(r'resources/babynames_births2021.csv', sep='\t')
+    df = pd.DataFrame(data)
+
+    rank = df['Rank']
+    male_names = df['Male name']
+    female_names = df['Female name']
+    registrar = Registro()
+    registrar.insertarRege(rank, male_names, female_names)
+
+
+if __name__ == '__main__':
+    main()
 
