@@ -11,7 +11,7 @@ class Registro:
 
     def insertarRege(self, rango, nombremasc, nombrefem):
 
-        for x in range(len(a)):
+        for x in range(len(rango)):
             query = ("INSERT INTO db_babynames values(%s,%s,%s)")
             val = (str(rango[x]), str(nombremasc[x]), str(nombrefem[x]))
             self.micursor.execute(query, val)
