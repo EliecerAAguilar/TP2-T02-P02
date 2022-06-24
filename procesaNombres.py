@@ -5,18 +5,21 @@ import psycopg2
 class Registro:
 
     def __init__(self):
-        self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="eliecer", port=5433,
-                                           password="eliecer")
+        self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="test", port=5433,
+                                           password="test-pass")
         self.micursor = self.connection.cursor()
+        self.micursor.execute("""CREATE DATABASE babynames;""")
+        self.micursor.execute("""GRANT ALL PRIVILEGES ON DATABASE babynames TO test;""")
+        self.connection.commit()
 
     def insertarRege(self, rango, nombremasc, nombrefem):
 
-        for x in range(len(rango)):
-            query = ("INSERT INTO db_babynames values(%s,%s,%s)")
-            val = (str(rango[x]), str(nombremasc[x]), str(nombrefem[x]))
-            self.micursor.execute(query, val)
-
         try:
+            for x in range(len(rango)):
+                query = ("INSERT INTO db_babynames values(%s,%s,%s)")
+                val = (str(rango[x]), str(nombremasc[x]), str(nombrefem[x]))
+                self.micursor.execute(query, val)
+
             # self.connection.commit()
             print("Se insertó correctamente")
         except ValueError as vx:
@@ -47,6 +50,7 @@ class Registro:
                 # Resultados
                 resultados = self.micursor.fetchall()
                 print('valores: ', resultados)
+                self.connection.commit()
                 self.connection.close()
                 self.micursor.close()
                 print("Se cerró la conexión")
