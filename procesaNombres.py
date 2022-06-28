@@ -5,20 +5,55 @@ import psycopg2
 class Registro:
 
     def __init__(self):
-        self.connection = psycopg2.connect(host="localhost", dbname="babynames.sql", user="test", port=5433,
-                                           password="test-pass")
-        self.micursor = self.connection.cursor()
-        self.micursor.execute("""CREATE DATABASE babynames;""")
-        self.micursor.execute("""GRANT ALL PRIVILEGES ON DATABASE babynames TO test;""")
-        self.connection.commit()
 
-    def insertarRege(self, rango, nombremasc, nombrefem):
+        """se debe conceder los permisos para la creacion de base de datos en el servidor de postgres"""
+        """alter role <user_name> with createdb"""
+        """o"""
+        """alter role <user_name> with superuser"""
+        """datos para la conexion a la base de datos"""
+        self.port = '5433'
+        self.database = "test"
+        self.host = "localhost"
+        self.user = "test"
+        self.pwd = "test-pass"
+
+        """nombre de las columnas de la tabla babyname"""
+        self.id = "id"
+        self.rango = "rango"
+        self.nombre = "nombre"
+        self.sexo = "sexo"
+        self.numero_de_nacimientos = "num_nac"
+
+        self.connection = psycopg2.connect(host=self.host, dbname=self.database, user=self.user, port=self.port,
+                                           password=self.pwd)
+        self.connection.autocommit = True
+        self.micursor = self.connection.cursor()
+        # self.micursor.execute("""CREATE DATABASE babynames;""")
+        # self.micursor.execute("""GRANT ALL PRIVILEGES ON DATABASE babynames TO test;""")
+        """aqui nos aseguramos que la tabla se elimine antes de hacer las inserciones para no duplicar valores"""
+        self.micursor.execute("""DROP TABLE IF EXISTS babyname;""")
+        self.column_names = (self.id, self.rango, self.nombre, self.sexo, self.numero_de_nacimientos)
+        self.micursor.execute("""CREATE TABLE IF NOT EXISTS babyname(%s SERIAL PRIMARY KEY, %s INTEGER, \
+         %s VARCHAR(150), %s CHAR(1)), %s INTEGER""", self.column_names)
+        self.connection.close()
+        self.database = "babynames"
+        self.connection = psycopg2.connect(host=self.host, dbname=self.database, user=self.user, port=self.port,
+                                           password=self.pwd)
+        self.connection.autocommit = True
+        # self.connection.commit()
+
+    def insert_reg(self, men, women):
 
         try:
-            for x in range(len(rango)):
-                query = ("INSERT INTO db_babynames values(%s,%s,%s)")
-                val = (str(rango[x]), str(nombremasc[x]), str(nombrefem[x]))
-                self.micursor.execute(query, val)
+            """insertando registro de nacimientos de los varones"""
+            query = """INSERT INTO babynames(rango,nombre,sexo,num_nac) values(%s, %s, %s, %s)"""
+            for i, row in men.iterrows():
+                self.micursor.execute(query, tuple(row))
+
+            """insertando registro de nacimientos de las mujeres"""
+            query = """INSERT INTO babynames(rango,nombre,sexo,num_nac) values(%s, %s, %s, %s)"""
+            for i, row in women.iterrows():
+                self.micursor.execute(query, tuple(row))
 
             # self.connection.commit()
             print("Se insertó correctamente")
@@ -29,30 +64,63 @@ class Registro:
             print("Error al insertar registro")
         finally:
             if self.connection:
-                # Los 100 primeros nombres mas populares (para ambos géneros).
-                SQL1 = "SELECT nombre_masc, nombre_fem FROM db_babynames WHERE rango <=100 ORDER BY rango;"
-                self.micursor.execute(SQL1)
+                """Los 100 primeros nombres mas populares (para ambos géneros)"""
+                """WHERE rango <=100 ORDER BY rango;"""
+                query01 = """SELECT nombre FROM babynames WHERE sexo LIKE 'M' LIMIT 100"""
+                self.micursor.execute(query01)
                 resultados = self.micursor.fetchall()
-                print('valores: ', resultados)
-                # Todos los nombres que tienen 4 letras o menos y sus rangos(para ambos géneros).
-                SQL2 = "SELECT * FROM db_babynames WHERE (char_length(nombre_masc)<=4 AND char_length(nombre_fem)<=4);"
-                self.micursor.execute(SQL2)
+                print("100 primeros nombres mas populares masculinos")
+                print(resultados)
+                query01 = "SELECT nombre FROM babynames WHERE sexo LIKE 'F' LIMIT 100"""
+                self.micursor.execute(query01)
                 resultados = self.micursor.fetchall()
-                print('valores: ', resultados)
-                # Imprima todos los nombres femeninos que tengan las letras ‘w’ o ‘x’ o ‘y’ o ‘z’ en ellas.
-                SQL3 = "SELECT nombre_fem FROM db_babynames WHERE (nombre_fem LIKE('%w%')) OR (nombre_fem LIKE('%x%')) OR (nombre_fem LIKE('%y%')) OR (nombre_fem LIKE('%z%'));"
-                self.micursor.execute(SQL3)
+                print("100 primeros nombres mas populares femeninos")
+                print(resultados)
+
+                """Todos los nombres que tienen 4 letras o menos y sus rangos(para ambos géneros)"""
+                query02 = """SELECT rango, nombre FROM babynames WHERE (char_length(nombre)<=4\
+                 AND sexo LIKE 'M');"""
+                self.micursor.execute(query02)
                 resultados = self.micursor.fetchall()
-                print('valores: ', resultados)
-                # Todos los nombres que tienen dos letras repetidas (de 3 casos distintos), por ejemplo: ‘aa’, ‘cc’, ‘pp’ (la letra p seguido de p).
-                SQL4 = "SELECT nombre_masc FROM db_babynames WHERE (nombre_masc LIKE('%ii%')) OR (nombre_masc LIKE('%ll%')) OR (nombre_masc LIKE('%nn%')) UNION ALL SELECT nombre_fem FROM db_babynames WHERE (nombre_fem LIKE('%ii%')) OR (nombre_fem LIKE('%ll%')) OR (nombre_fem LIKE('%nn%'));"
-                self.micursor.execute(SQL4)
+                print("nombres masculinos de 4 letras o menos")
+                print(resultados)
+                query02 = """SELECT rango, nombre FROM babynames WHERE (char_length(nombre)<=4\
+                 AND sexo LIKE 'F');"""
+                self.micursor.execute(query02)
+                resultados = self.micursor.fetchall()
+                print("nombres femeninos de 4 letras o menos")
+                print(resultados)
+
+                """Imprima todos los nombres femeninos que tengan las letras ‘w’ o ‘x’ o ‘y’ o ‘z’ en ellas."""
+                query03 = """SELECT nombre FROM babynames WHERE (\
+                (\
+                    (nombre LIKE('%w%')) \
+                    OR (nombre LIKE('%x%'))\
+                    OR (nombre LIKE('%y%'))\
+                    OR (nombre LIKE('%z%'))\
+                )\
+                AND (sexo LIKE 'F')\
+                );"""
+                self.micursor.execute(query03)
+                resultados = self.micursor.fetchall()
+                print("Nombres femeninos con letras 'w', 'x','y' ó 'z'")
+                print(resultados)
+
+                """d. Todos los nombres que tienen dos letras repetidas (de 3 casos distintos), por ejemplo: ‘aa’, ‘tt,
+                 ‘pp’ (la letra p seguido de p)"""
+                query04 = """SELECT nombre FROM babynames WHERE (nombre LIKE('%ii%')) \
+                OR (nombre LIKE('%ll%'))\
+                OR (nombrec LIKE('%nn%')) UNION ALL SELECT nombre FROM babynames \
+                WHERE (nombre LIKE('%ii%'))\
+                OR (nombre LIKE('%ll%')) OR (nombre LIKE('%nn%'));"""
+                self.micursor.execute(query04)
                 # Resultados
                 resultados = self.micursor.fetchall()
                 print('valores: ', resultados)
-                self.connection.commit()
-                self.connection.close()
+                # self.connection.commit
                 self.micursor.close()
+                self.connection.close()
+
                 print("Se cerró la conexión")
 
 
@@ -60,14 +128,22 @@ class Registro:
 
 
 def main():
-    data = pd.read_csv(r'resources/babynames_births2021.csv', sep='\t')
-    df = pd.DataFrame(data)
+    try:
+        data = pd.read_csv(r'resources/babynames_births2021.csv')
+        df = pd.DataFrame(data)
 
-    rank = df['Rank']
-    male_names = df['Male name']
-    female_names = df['Female name']
-    registrar = Registro()
-    registrar.insertarRege(rank, male_names, female_names)
+        """copiando los valores del dataframe original y separandolos por sexo usando la funcion .loc """
+
+        males = df.loc[:, ["Rank", "Male name", "Number of males"]]
+        males["sexo"] = 'M'
+
+        females = df.loc[:, ["Rank", "Female name", "Number of females"]]
+        females["sexo"] = 'F'
+
+        registrar = Registro()
+        registrar.insert_reg(males, females)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
